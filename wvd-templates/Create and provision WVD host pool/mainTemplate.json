@@ -282,7 +282,7 @@
                     "name": "rdshVmNamesCopy",
                     "count": "[parameters('rdshNumberOfInstances')]",
                     "input": {
-                        "name": "[concat(variables('rdshPrefix'), copyIndex('rdshVmNamesCopy'))]"
+                        "name": "[concat(variables('rdshPrefix'), padLeft(copyIndex('rdshVmNamesCopy'), 4, '0'))]"
                     }
                 }
             ]
@@ -434,7 +434,7 @@
         {
             "apiVersion": "2018-11-01",
             "type": "Microsoft.Network/networkInterfaces",
-            "name": "[concat(variables('rdshPrefix'), copyindex(), '-nic')]",
+            "name": "[concat(variables('rdshPrefix'), padLeft(string(copyIndex()),4,'0'), '-nic')]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Compute/availabilitySets/', variables('rdshPrefix'), 'availabilitySet')]"
@@ -461,7 +461,7 @@
         {
             "apiVersion": "2018-10-01",
             "type": "Microsoft.Compute/virtualMachines",
-            "name": "[concat(variables('rdshPrefix'), copyindex())]",
+            "name": "[concat(variables('rdshPrefix'), padLeft(copyindex(), 4, '0'))]",
             "location": "[parameters('location')]",
             "copy": {
                 "name": "rdsh-vm-loop",
@@ -472,7 +472,7 @@
             },
             "dependsOn": [
                 "[concat('Microsoft.Compute/images/', variables('imageName'))]",
-                "[concat('Microsoft.Network/networkInterfaces/', variables('rdshPrefix'), copyindex(), '-nic')]"
+                "[concat('Microsoft.Network/networkInterfaces/', variables('rdshPrefix'), padLeft(copyindex(), 4, '0'), '-nic')]"
             ],
             "properties": {
                 "hardwareProfile": {
@@ -480,7 +480,7 @@
                 },
                 "availabilitySet": "[if(variables('createAvailabilitySet'), main.getAvailabilitySet(variables('rdshPrefix')), json('null'))]",
                 "osProfile": {
-                    "computerName": "[concat(variables('rdshPrefix'), copyindex())]",
+                    "computerName": "[concat(variables('rdshPrefix'), padLeft(copyindex(), 4, '0'))]",
                     "adminUsername": "[variables('existingDomainUsername')]",
                     "adminPassword": "[parameters('existingDomainPassword')]"
                 },
@@ -496,7 +496,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('rdshPrefix'), copyindex(), '-nic'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('rdshPrefix'), padLeft(copyindex(), 4, '0'), '-nic'))]"
                         }
                     ]
                 },
@@ -511,10 +511,10 @@
         {
             "apiVersion": "2018-10-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('rdshPrefix'), copyindex(), '/joindomain')]",
+            "name": "[concat(variables('rdshPrefix'), padLeft(copyindex(), 4, '0'), '/joindomain')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), copyindex())]"
+                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), padLeft(copyindex(), 4, '0'))]"
             ],
             "copy": {
                 "name": "rdsh-domain-join-loop",
@@ -542,10 +542,10 @@
         {
             "apiVersion": "2018-10-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('rdshPrefix'), '0/dscextension')]",
+            "name": "[concat(variables('rdshPrefix'), '0000', '/dscextension')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), '0/extensions/joindomain')]"
+                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), '0000', '/extensions/joindomain')]"
             ],
             "copy": {
                 "name": "first-rdsh-dsc",
@@ -589,13 +589,13 @@
             "condition": "[greater(parameters('rdshNumberOfInstances'), 1)]",
             "apiVersion": "2018-10-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('rdshPrefix'), copyindex(1), '/dscextension')]",
+            "name": "[concat(variables('rdshPrefix'), padLeft(copyindex(1), 4, '0'), '/dscextension')]",
             "location": "[parameters('location')]",
             "metadata": {
                 "comments": "The following dependencies must be defined (even if conditionally deployed) in this template"
             },
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), copyindex(if(greater(parameters('rdshNumberOfInstances'), 1), 1, 0)), '/extensions/joindomain')]",
+                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), padLeft(copyindex(1), 4, '0'), '/extensions/joindomain')]",
                 "first-rdsh-dsc"
             ],
             "copy": {

@@ -542,10 +542,10 @@
         {
             "apiVersion": "2018-10-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('rdshPrefix'), '0000', '/dscextension')]",
+            "name": "[concat(variables('rdshPrefix'), padLeft('0',4,'0'), '/dscextension')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), '0000', '/extensions/joindomain')]"
+                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), padLeft('0',4,'0'), '/extensions/joindomain')]"
             ],
             "copy": {
                 "name": "first-rdsh-dsc",
